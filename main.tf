@@ -64,11 +64,14 @@ data "aws_iam_policy_document" "web" {
   statement {
     sid = "webTrustPolicy"
     actions = [
-      "sts:AssumeRole",
+      "sts:AssumeRole"
     ]
     principals {
       type        = "Service"
-      identifiers = ["ec2.amazonaws.com"]
+      identifiers = [
+        "ec2.amazonaws.com",
+        "ssm.amazonaws.com"
+      ]
     }
     effect = "Allow"
   }
