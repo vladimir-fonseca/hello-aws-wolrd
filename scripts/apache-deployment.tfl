@@ -1,0 +1,62 @@
+#!/bin/bash
+
+set -x
+exec > >(tee /var/log/user-data.log) 2>&1
+
+sudo apt update -y > /dev/null 2>&1
+sudo apt install cloud-guest-utils xfsprogs -y > /dev/null 2>&1
+
+echo "*** Installing apache2"
+sudo apt install apache2 -y > /dev/null 2>&1
+echo "*** Completed Installing apache2"
+
+echo "*** Creating filesystem"
+
+sgdisk -Z ${DEVICE_NAME}
+sgdisk -n 0:0:0 ${DEVICE_NAME}
+sgdisk -c 1:"documentroot" ${DEVICE_NAME}
+
+sudo mkfs -t xfs -d name=${DEVICE_NAME}1 -f > /dev/null 2>&1
+
+BLK_ID=$(sudo blkid -s UUID -o value ${DEVICE_NAME}1)
+
+if [[ -z $BLK_ID ]]; then
+  echo "error... no block ID found ... "
+  exit 1
+fi
+
+echo "UUID=$BLK_ID     /var/www/html   xfs    defaults   0   2" | sudo tee --append /etc/fstab
+sudo mount -a
+
+echo "filesystem creation complete!"
+
+sudo chown  ubuntu /var/www/html
+sudo chmod -R o+r /var/www/html
+
+# echo "<html><h1>Hello AWS</h1></html>" > /var/www/html/index.html
+# <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"   "http://www.w3.org/TR/html4/strict.dtd">
+
+sudo tee /var/www/html/index.html > /dev/null <<HTML
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Hello AWS World</title>
+  <meta charset="utf-8">
+  <style>
+    body {
+      font-family: Arial, sans-serif;  
+      font-size:20px;
+    }
+  </style>
+</head>
+<body>
+  <div align="center">
+  <h1>"Hello AWS World"</h1>
+  </div>
+</body>
+</html>
+HTML
+
+
+sudo systemctl enable apache2.service
+sudo systemctl start apache2.service
