@@ -23,7 +23,7 @@ variable "public_subnet_cidr" {
 }
 
 variable "my_ip_address" {
-  default = "198.27.162.221/32"
+  default = "198.27.219.90/32"
 }
 
 variable "instance_type" {
