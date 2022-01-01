@@ -30,7 +30,6 @@ sudo mount -a
 
 echo "filesystem creation complete!"
 
-sudo chown  ubuntu /var/www/html
 sudo chmod -R o+r /var/www/html
 
 sudo tee /var/www/html/index.html > /dev/null <<HTML
@@ -55,6 +54,7 @@ sudo tee /var/www/html/index.html > /dev/null <<HTML
 </html>
 HTML
 
+sudo chown ubuntu:ubuntu /var/www/html/*
 
 sudo systemctl enable apache2.service
 sudo systemctl start apache2.service
