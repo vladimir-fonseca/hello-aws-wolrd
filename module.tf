@@ -140,7 +140,7 @@ resource "local_file" "pem_file" {
 resource "aws_instance" "web" {
   ami           = data.aws_ami.ubuntu.id
   instance_type = var.instance_type
-  key_name      = local.key_name
+  key_name      = var.ssh_key_name
 
   subnet_id = aws_subnet.public_subnet.id
   security_groups = [
