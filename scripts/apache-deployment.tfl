@@ -33,9 +33,6 @@ echo "filesystem creation complete!"
 sudo chown  ubuntu /var/www/html
 sudo chmod -R o+r /var/www/html
 
-# echo "<html><h1>Hello AWS</h1></html>" > /var/www/html/index.html
-# <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"   "http://www.w3.org/TR/html4/strict.dtd">
-
 sudo tee /var/www/html/index.html > /dev/null <<HTML
 <!DOCTYPE html>
 <html>
@@ -44,6 +41,7 @@ sudo tee /var/www/html/index.html > /dev/null <<HTML
   <meta charset="utf-8">
   <style>
     body {
+      color: #FFA500
       font-family: Arial, sans-serif;  
       font-size:20px;
     }
