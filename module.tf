@@ -2,9 +2,11 @@
 resource "aws_vpc" "web" {
   cidr_block = var.vpc_cidr
 
-  tags = {
-    Name = "web-vpc"
-  }
+  tags = merge(
+    local.tags,
+    {
+      Name = "web-vpc"
+    })
 
   depends_on = []
 
@@ -13,9 +15,11 @@ resource "aws_vpc" "web" {
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.web.id
 
-  tags = {
-    Name = "vpc_igw"
-  }
+  tags = merge(
+    local.tags,
+    {
+      Name = "vpc_igw"
+    })
 
   depends_on = [
     aws_vpc.web,
@@ -28,9 +32,11 @@ resource "aws_subnet" "public_subnet" {
   map_public_ip_on_launch = true
   availability_zone       = var.availability_zone
 
-  tags = {
-    Name = "public-subnet"
-  }
+  tags = merge(
+    local.tags,
+    {
+      Name = "public-subnet"
+    })
 
   depends_on = [
     aws_vpc.web,
@@ -45,9 +51,11 @@ resource "aws_route_table" "public_rt" {
     gateway_id = aws_internet_gateway.igw.id
   }
 
-  tags = {
-    Name = "public-route_table"
-  }
+  tags = merge(
+    local.tags,
+    {
+      Name = "public-route_table"
+    })
 
   depends_on = [
     aws_vpc.web,
@@ -92,9 +100,11 @@ resource "aws_security_group" "sg_web" {
     ipv6_cidr_blocks = ["::/0"]
   }
 
-  tags = {
-    Name = "allow_ssh_http"
-  }
+  tags = merge(
+    local.tags,
+    {
+      Name = "allow_ssh_http"
+    })
 
   depends_on = [
     aws_vpc.web,
@@ -104,26 +114,33 @@ resource "aws_security_group" "sg_web" {
 }
 
 resource "tls_private_key" "ssh" {
+  count = var.generate_ssh_key ? 1: 0
+
   algorithm = "RSA"
   rsa_bits  = 4096
 }
 
 resource "aws_key_pair" "generated_key" {
+  count = var.generate_ssh_key ? 1: 0
+
   key_name   = var.ssh_key_name
-  public_key = tls_private_key.ssh.public_key_openssh
+  public_key = tls_private_key.ssh[count.index].public_key_openssh
 }
 
 resource "local_file" "pem_file" {
+  count = var.generate_ssh_key ? 1: 0
+
   filename              = pathexpand("~/.ssh/${var.ssh_key_name}.pem")
   file_permission       = "600"
   directory_permission = "700"
-  sensitive_content    = tls_private_key.ssh.private_key_pem
+  sensitive_content    = tls_private_key.ssh[count.index].private_key_pem
 }
+
 
 resource "aws_instance" "web" {
   ami           = data.aws_ami.ubuntu.id
   instance_type = var.instance_type
-  key_name      = aws_key_pair.generated_key.key_name
+  key_name      = local.key_name
 
   subnet_id = aws_subnet.public_subnet.id
   security_groups = [
@@ -147,13 +164,17 @@ resource "aws_instance" "web" {
   iam_instance_profile         = aws_iam_instance_profile.web.name
   associate_public_ip_address = "false"
 
-  tags = {
-    Name = "web-server"
-  }
+  tags = merge(
+    local.tags,
+    {
+      Name = "web-server"
+    })
 
-  volume_tags = {
-    Name = "web-server"
-  }
+  volume_tags =  merge(
+    local.tags,
+    {
+      Name = "web-server"
+    })
 
   depends_on = [
     aws_vpc.web,
@@ -168,9 +189,11 @@ resource "aws_eip" "web" {
   instance = aws_instance.web.id
   vpc      = true
   
-  tags = {
-    Name = "eip-web-server"
-  }
+  tags = merge(
+    local.tags,
+    {
+      Name = "eip-web-server"
+    })
 
   lifecycle {
     prevent_destroy = false

@@ -61,5 +61,10 @@ variable "ebs_device" {
 }
 
 variable "ssh_key_name" {
-  default = "ec2-ebs-web"
+  default = "web-key"
+}
+
+variable "generate_ssh_key" {
+  type    = bool
+  default = false
 }

@@ -76,3 +76,13 @@ data "aws_iam_policy_document" "web" {
     effect = "Allow"
   }
 }
+
+locals {
+  key_name = var.generate_ssh_key ?  aws_key_pair.generated_ke[count.index].key_name : var.var.ssh_key_name
+
+  tags = {
+    CostCenter = "Professional Services Interview Work Assignment"
+    Project    = "web-server"
+    ManagedBy  = "Terraform"
+  }
+}
