@@ -41,7 +41,7 @@ sudo tee /var/www/html/index.html > /dev/null <<HTML
   <meta charset="utf-8">
   <style>
     body {
-      color: #FFA500
+      color: #FFA500;
       font-family: Arial, sans-serif;  
       font-size:20px;
     }
