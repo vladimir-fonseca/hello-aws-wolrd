@@ -132,8 +132,8 @@ resource "local_file" "pem_file" {
 
   filename              = pathexpand("~/.ssh/${var.ssh_key_name}.pem")
   file_permission       = "600"
-  directory_permission = "700"
-  sensitive_content    = tls_private_key.ssh[count.index].private_key_pem
+  directory_permission  = "700"
+  sensitive_content     = tls_private_key.ssh[count.index].private_key_pem
 }
 
 
