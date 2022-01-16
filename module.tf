@@ -211,6 +211,16 @@ resource "aws_iam_role" "web" {
   assume_role_policy   = data.aws_iam_policy_document.web.json
 }
 
+resource "aws_iam_role_policy_attachment" "web_AmazonSSMManagedInstanceCore" {
+  role       = aws_iam_role.web.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+resource "aws_iam_role_policy_attachment" "web_AmazonEC2RoleforSSM" {
+  role       = aws_iam_role.web.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
+}
+
 resource "aws_iam_instance_profile" "web" {
   name_prefix  = "profile-web-server"
   role        = join("", aws_iam_role.web.*.name)
